@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Watching Panels</title>
+        <link rel="stylesheet" type="text/css" href="./js/jquery-ui-1.10.0.custom/css/black-tie/jquery-ui-1.10.0.custom.min.css"/>
+        <link rel="stylesheet" type="text/css" href="./css/bootstrap/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="./css/bootstrap-switch.css"/>
+        <link rel="stylesheet" type="text/css" href="./css/watchingpanels.css"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script type="text/javascript" src="./js/jquery1.9.js"></script>
+        <script type="text/javascript" src="./js/jquery-ui-1.10.0.custom/js/jquery-ui-1.10.0.custom.min.js"></script>
+        <script type="text/javascript" src="./js/watchingpanels.js"></script>
+        <script type="text/javascript" src="./js/jquery.switch.js"></script>
+        <script type="text/javascript" src="./js/sylvester.js"></script>
+    </head>
+    <body>
+        <div id="main-wrapper">
+            <div id="header">
+                <div id="wrapper-sliders">
+                    <div class="control-wrapper">
+                        <span class="custom-label">Rows : </span>
+                        <div class="slider-jui" id="slider-colonnes"></div>
+                    </div>
+
+                    <div class="control-wrapper">
+                        <span class="custom-label">Lines : </span>
+                        <div class="slider-jui" id="slider-lignes"></div>
+                    </div>
+
+                    <div class="control-wrapper">
+                        <input type="button" id="apply-button" class="apply-button btn btn-inverse btn-block" value="Apply"/>
+                    </div>
+                    <div class="control-wrapper">
+                        <span class="custom-label">Panels size : </span>
+                        <div class="slider-jui" id="slider-size"></div>
+                    </div>
+
+                    <div class="control-wrapper">
+                        <span class="custom-label">Perspective : </span>
+                        <div class="slider-jui" id="slider-perspective"></div>
+                    </div>
+
+                    <div class="control-wrapper">
+                        <span class="custom-label floatleft">Repulse-o-Panel : </span>
+                        <div id="switch-repulse" class="switch switch-mini">
+                            <input type="checkbox" checked="checked">
+                        </div>
+                    </div>
+
+                    <div class="control-wrapper">
+                        <span class="custom-label">Repulse-o-Panel strength : </span>
+                        <div class="slider-jui" id="slider-repulse"></div>
+                    </div>
+
+                    <div class="control-wrapper">
+                        <span class="custom-label floatleft">Keep panel orientation on drag : </span>
+                        <div id="switch-orientation" class="switch switch-mini">
+                            <input type="checkbox">
+                        </div>
+                    </div>
+                    <br/>
+
+                    <div class="control-wrapper">
+                        <span class="custom-label floatleft">Flashlight mode : </span>
+                        <div id="switch-flashlight" class="switch switch-mini">
+                            <input type="checkbox" checked="checked">
+                        </div>
+                    </div>
+
+                    <div class="control-wrapper">
+                        <span class="custom-label">Flashlight size : </span>
+                        <div class="slider-jui" id="slider-flashlight"></div>
+                    </div>
+
+                    <div class="control-wrapper">
+                        <span class="custom-label">Corner radius : </span>
+                        <div class="slider-jui" id="slider-corner"></div>
+                    </div>
+
+                    <div class="control-wrapper">
+                        <span class="custom-label credits">Watching Panels - Florian Motteau</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page" id="page-wrapper"></div>
+        </div>
+    </body>
+</html>
