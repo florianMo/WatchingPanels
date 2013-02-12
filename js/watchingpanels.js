@@ -11,9 +11,11 @@
 //GNU General Public License for more details.
 $(document).ready(function() {
     // create first panel set
-    var _onePanel = '<div class="panel"><div class="inner-panel"></div></div>',
+    var _onePanel = $("<div></div>", {"class" : "inner-panel"})
+        .wrap($("<div></div>", {"class" : "panel"}))
+        .parent();
     _pageWrapper = $("#page-wrapper");
-    for(i=0; i<45; i++) { _pageWrapper.append(_onePanel); }
+    for(i=0; i<45; i++) { _onePanel.clone().appendTo(_pageWrapper); }
     // init values
     var _perspective = 800,
     _panels = $(".panel"),
@@ -186,7 +188,7 @@ $(document).ready(function() {
         // destroy old matrix
         _pageWrapper.html("");
         // create new matrix
-        for(i=0; i<col*lig; i++) { _pageWrapper.append(_onePanel); }
+        for(i=0; i<col*lig; i++) { _onePanel.clone().appendTo(_pageWrapper); }
         // update global variable for panels
         _panels = $(".panel");
         _innerPanels = $(".inner-panel");
