@@ -213,9 +213,8 @@ $(document).ready(function() {
         _perspective = per;
         // init panels position data
         initPanelData();
-        // reload click behaviors
+        // reload drag
         initDraggablePanels();
-        initClickablePanels();
     });
     // FUNCTIONS
     // ---------
