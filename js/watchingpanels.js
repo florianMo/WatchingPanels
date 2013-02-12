@@ -18,67 +18,40 @@ $(document).ready(function() {
     for(i=0; i<45; i++) { _onePanel.clone().appendTo(_pageWrapper); }
     // init values
     var _perspective = 800,
-    _panels = $(".panel"),
-    _innerPanels = $(".inner-panel"),
-    _flashlight = true,
-    _flashlightSize = 10,
-    _pageWrapperWidth = parseInt($("#page-wrapper").css("width"),10),
-    _panelHeight = 100,
-    _panelWidth = 100,
-    _repulseStrength = 100,
-    _repulse = true,
-    _keepPanelOrientation = false;
+        _panels = $(".panel"),
+        _innerPanels = $(".inner-panel"),
+        _flashlight = true,
+        _flashlightSize = 10,
+        _pageWrapperWidth = parseInt($("#page-wrapper").css("width"),10),
+        _panelHeight = 100,
+        _panelWidth = 100,
+        _repulseStrength = 100,
+        _repulse = true,
+        _keepPanelOrientation = false;
     // create sliders
     $("#slider-colonnes").slider({
-        animate: true,
-        range: "min",
-        value: 9,
-        min: 1,
-        max: 26,
-        step: 1
+        animate: true,range: "min",value: 9,min: 1,max: 26,step: 1
     });
     $("#slider-lignes").slider({
-        animate: true,
-        range: "min",
-        value: 5,
-        min: 1,
-        max: 13,
-        step: 1
+        animate: true,range: "min",value: 5,min: 1,max: 13,step: 1
     });
     $("#slider-perspective").slider({
-        animate: true,
-        range: "min",
-        value: 800,
-        min: 25,
-        max: 2000,
-        step: 25,
+        animate: true,range: "min",value: 800,min: 25,max: 2000,step: 25,
         change: function(event, ui) { _perspective = ui.value; }
     });
     $("#slider-flashlight").slider({
-        animate: true,
-        range: "min",
-        value: 10,
-        min: 1,
-        max: 20,
+        animate: true,range: "min",value: 10,min: 1,max: 20,
         change: function(event, ui) { _flashlightSize = ui.value; }
     });
     $("#slider-corner").slider({
-        animate: true,
-        range: "min",
-        value: 10,
-        min: 0,
-        max: 50,
-        step: 1,
+        animate: true,range: "min",value: 10,min: 0,max: 50,step: 1,
+        // live update of inner-panels border radius
         change: function(event, ui) { _innerPanels.css({ "border-radius" : ui.value+"px" }); }
     });
     $("#slider-size").slider({
-        animate: true,
-        range: "min",
-        value: 100,
-        min: 0,
-        max: 100,
-        step: 1,
+        animate: true,range: "min",value: 100,min: 0,max: 100,step: 1,
         change: function(event, ui) {
+            // live update of inner-panels size
             _innerPanels.css({
                 "height" : ((ui.value*_panelHeight)/100)+"px",
                 "width"  : ((ui.value*_panelWidth)/100)+"px"
@@ -86,12 +59,8 @@ $(document).ready(function() {
         }
     });
     $("#slider-repulse").slider({
-        animate: true,
-        range: "min",
-        value: 100,
-        min: 10,
-        max: 1000,
-        step: 10,
+        animate: true,range: "min",value: 100,min: 10,max: 1000,step: 10,
+        // live update of repulsion factor (used in gaussian function)
         change: function(event, ui) { _repulseStrength = ui.value; }
     });
     // update globals for switches
@@ -105,7 +74,7 @@ $(document).ready(function() {
     initDraggablePanels();
     // update rotation/opacity of each panels on mouse move event
     $(document).on("mousemove",function(event) {
-        // called for each panel on each mousemove --> critical, avoid $(...)
+        // called for each panel on each mousemove --> critical, avoid $(...) or any useless complexity
         _innerPanels.each(function() {
             var currentPanel = $(this),
                 eventX = event.pageX,
@@ -114,68 +83,64 @@ $(document).ready(function() {
                 yTrig = currentPanel.data("centerY") - eventY,
                 xOpacity,
                 yOpacity,
+                newOpacity,
                 distance,
+                // some trigonometry there
                 yAngle = Math.atan(xTrig/_perspective),
                 xAngle = -Math.atan(yTrig/_perspective);  
-            // if flashlight or repulse on, do the maths
+            // if flashlight or repulse on, do some maths
             if(_flashlight || _repulse) {
                 xOpacity = currentPanel.data("opacityX") - eventX;
                 yOpacity = currentPanel.data("opacityY") - eventY;
                 distance = Math.sqrt((xOpacity * xOpacity) + (yOpacity * yOpacity));
             }
-            // rotation matrices
+            // rotation matrices, thx to Sylvester.js
+            var cos_x = Math.cos(xAngle),
+                cos_y = Math.cos(yAngle);
             var m_rotationX = $M([
                 [1,0,0,0],
-                [0,Math.cos(xAngle), Math.sin(-xAngle), 0],
-                [0,Math.sin(xAngle), Math.cos(xAngle), 0],
+                [0,cos_x,Math.sin(-xAngle),0],
+                [0,Math.sin(xAngle),cos_x,0],
                 [0,0,0,1]
             ]);
             var m_rotationY = $M([
-                [Math.cos(yAngle),0,Math.sin(yAngle),0],
+                [cos_y,0,Math.sin(yAngle),0],
                 [0,1,0,0],
-                [Math.sin(-yAngle),0,Math.cos(yAngle),0],
+                [Math.sin(-yAngle),0,cos_y,0],
                 [0,0,0,1]
             ]);
             var tM = m_rotationX.x(m_rotationY);
             // add translation if set
             if(_repulse) {
-                var zOffset = _repulseStrength*Math.exp(-0.00001*(distance*distance));
-                var m_translationZ = $M([
-                    [1,0,0,0],
-                    [0,1,0,0],
-                    [0,0,1,0],
-                    [zOffset,zOffset,zOffset,1]
-                ]);
+                // calculate zOffset for repulse-o-panel with a gaussian function
+                var zOffset = _repulseStrength*Math.exp(-0.00001*(distance*distance)),
+                    m_translationZ = $M([
+                        [1,0,0,0],
+                        [0,1,0,0],
+                        [0,0,1,0],
+                        [zOffset,zOffset,zOffset,1]
+                    ]);
+                // add translation to the final matrix
                 tM = tM.x(m_translationZ);
             }
-            // construct final css string
+            // construct final css string with matrix values
             var s = "matrix3d(";
-            s += tM.e(1,1).toFixed(10) + "," + tM.e(1,2).toFixed(10) + "," + tM.e(1,3).toFixed(10) + "," + tM.e(1,4).toFixed(10) + ","
-            s += tM.e(2,1).toFixed(10) + "," + tM.e(2,2).toFixed(10) + "," + tM.e(2,3).toFixed(10) + "," + tM.e(2,4).toFixed(10) + ","
-            s += tM.e(3,1).toFixed(10) + "," + tM.e(3,2).toFixed(10) + "," + tM.e(3,3).toFixed(10) + "," + tM.e(3,4).toFixed(10) + ","
-            s += tM.e(4,1).toFixed(10) + "," + tM.e(4,2).toFixed(10) + "," + tM.e(4,3).toFixed(10) + "," + tM.e(4,4).toFixed(10)
-            s += ")";
+            s+=tM.e(1,1).toFixed(10)+","+tM.e(1,2).toFixed(10)+","+tM.e(1,3).toFixed(10)+","+tM.e(1,4).toFixed(10)+","
+            s+=tM.e(2,1).toFixed(10)+","+tM.e(2,2).toFixed(10)+","+tM.e(2,3).toFixed(10)+","+tM.e(2,4).toFixed(10)+","
+            s+=tM.e(3,1).toFixed(10)+","+tM.e(3,2).toFixed(10)+","+tM.e(3,3).toFixed(10)+","+tM.e(3,4).toFixed(10)+","
+            s+=tM.e(4,1).toFixed(10)+","+tM.e(4,2).toFixed(10)+","+tM.e(4,3).toFixed(10)+","+tM.e(4,4).toFixed(10)
+            s+=")";
             // if selected, opacity is reduced when cursor is far
             if(_flashlight) {
-                var dimOpacity = ((distance * 0.99) / _pageWrapperWidth) * (10 / _flashlightSize);
-                currentPanel.css({
-                    "-webkit-transform" : s,
-                    "-moz-transform" : s,
-                    "-o-transform" : s,
-                    "-ms-transform" : s,
-                    "transform" : s,
-                    "opacity" : (1-dimOpacity)
-                });
+                //var dimOpacity = ((distance * 0.99) / _pageWrapperWidth) * (10 / _flashlightSize);
+                newOpacity = 1-((9.9 * distance) / (_pageWrapperWidth * _flashlightSize));
             } else {
-                currentPanel.css({
-                    "-webkit-transform" : s,
-                    "-moz-transform" : s,
-                    "-o-transform" : s,
-                    "-ms-transform" : s,
-                    "transform" : s,
-                    "opacity" : 0.6
-                });
+                newOpacity = 0.6;
             }
+            currentPanel.css({
+                "-webkit-transform" : s,"-moz-transform" : s,"-o-transform" : s,
+                "-ms-transform" : s,"transform" : s,"opacity" : newOpacity
+            });
         })
     })
     // update parameters from user input
